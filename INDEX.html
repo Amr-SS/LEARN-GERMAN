@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LINGO - Premium German Learning Platform</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Configuration for Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        glass: {
+                            50: 'rgba(255, 255, 255, 0.05)',
+                            100: 'rgba(255, 255, 255, 0.1)',
+                            200: 'rgba(255, 255, 255, 0.2)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                        },
+                        brand: {
+                            500: '#6366f1', // Indigo
+                            600: '#4f46e5',
+                            accent: '#f472b6', // Pink
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 10s infinite',
+                        'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(40px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Premium Styles */
+        body {
+            background-color: #030712; /* Very dark slate */
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+
+        /* Gradient Orbs Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .blob-1 { background: radial-gradient(circle, #4f46e5 0%, transparent 70%); opacity: 0.4; filter: blur(60px); }
+        .blob-2 { background: radial-gradient(circle, #db2777 0%, transparent 70%); opacity: 0.3; filter: blur(60px); }
+        .blob-3 { background: radial-gradient(circle, #0891b2 0%, transparent 70%); opacity: 0.3; filter: blur(60px); }
+
+        /* Glassmorphism System */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.03) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Utilities */
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        
+        /* Navigation */
+        .nav-item.active { color: #818cf8; position: relative; }
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; background: #818cf8; border-radius: 50%; box-shadow: 0 0 10px #818cf8;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav-item.active { color: #ffffff; }
+        .bottom-nav-item.active .icon-container {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transform: translateY(-5px); box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Word Pill for Sentence Builder */
+        .word-pill {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            user-select: none;
+        }
+        .word-pill:hover { transform: translateY(-2px); }
+        .word-pill:active { transform: scale(0.95); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake-anim { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        .pop-anim { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes pop {
+            0% { transform: scale(0.9); } 50% { transform: scale(1.05); } 100% { transform: scale(1); }
+        }
+        
+        /* Safe area for mobile */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col tap-highlight-transparent selection:bg-indigo-500 selection:text-white">
+
+    <!-- Background Layer -->
+    <div class="bg-mesh">
+        <div class="blob-1 absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full animate-blob"></div>
+        <div class="blob-2 absolute top-[40%] right-[-20%] w-[400px] h-[400px] rounded-full animate-blob animation-delay-2000"></div>
+        <div class="blob-3 absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:block fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5 h-20">
+        <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="showSection('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
+                    <i class="fa-solid fa-layer-group text-white text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-display font-bold text-2xl tracking-tight block leading-none">LINGO</span>
+                    <span class="text-[10px] text-indigo-300 font-medium tracking-widest uppercase">Premium</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <button onclick="showSection('home')" class="nav-item text-sm font-medium text-slate-400 hover:text-white transition-colors py-2" data-target="home">Home</button>
+                <button onclick="showSection('vocabulary')" class="nav-item text-sm font-medium text-slate-400 hover:text-white transition-colors py-2" data-target="vocabulary">Vocab</button>
+                <button onclick="showSection('grammar')" class="nav-item text-sm font-medium text-slate-400 hover:text-white transition-colors py-2" data-target="grammar">Grammar</button>
+                <button onclick="showSection('exam')" class="nav-item text-sm font-medium text-slate-400 hover:text-white transition-colors py-2" data-target="exam">Exam Mode</button>
+                <button onclick="showSection('manage')" class="nav-item text-sm font-medium text-slate-400 hover:text-white transition-colors py-2" data-target="manage">Manage</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <header class="md:hidden fixed top-0 w-full z-40 glass-panel px-6 py-4 flex items-center justify-center border-b border-white/5">
+        <div class="flex items-center gap-2" onclick="showSection('home')">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <i class="fa-solid fa-layer-group text-white text-xs"></i>
+            </div>
+            <span class="font-display font-bold text-xl tracking-tight">LINGO</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-24 md:pt-32 pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10 min-h-screen">
+
+        <!-- Toast -->
+        <div id="toast" class="fixed top-24 right-5 transform translate-x-[150%] transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) z-[100] glass-panel px-5 py-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-4 min-w-[300px]">
+            <div id="toast-icon-bg" class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <i id="toast-icon" class="fa-solid fa-check text-emerald-400"></i>
+            </div>
+            <div>
+                <h4 id="toast-title" class="font-bold text-sm text-white">Success</h4>
+                <p id="toast-msg" class="text-xs text-slate-400 mt-0.5">Operation completed.</p>
+            </div>
+        </div>
+
+        <!-- SECTION: HOME -->
+        <section id="home-section" class="animate-fade-in w-full">
+            <div class="text-center py-8 md:py-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8 animate-slide-up">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-xs font-semibold tracking-wide text-slate-300 uppercase">Amrit's German Hub</span>
+                </div>
+
+                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight animate-slide-up" style="animation-delay: 0.1s; line-height: 1.1;">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-indigo-100 to-slate-400">GERMAN</span><br>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">MASTERY</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-xl mx-auto animate-slide-up leading-relaxed" style="animation-delay: 0.2s;">
+                    Learn A2 Vocabulary, Master Grammar, and Ace your Exams.
+                </p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto animate-slide-up" style="animation-delay: 0.3s;">
+                    <button onclick="showSection('vocabulary')" class="px-6 py-4 glass-panel rounded-2xl font-bold text-white hover:bg-white/10 transition-all border border-white/10 flex items-center justify-between group">
+                        <span><i class="fa-solid fa-book-open mr-2 text-indigo-400"></i> Vocabulary</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button onclick="showSection('grammar')" class="px-6 py-4 glass-panel rounded-2xl font-bold text-white hover:bg-white/10 transition-all border border-white/10 flex items-center justify-between group">
+                        <span><i class="fa-solid fa-puzzle-piece mr-2 text-pink-400"></i> Grammar</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button onclick="showSection('exam')" class="px-6 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg col-span-1 sm:col-span-2 text-center">
+                        Start Exam Mode
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: VOCABULARY -->
+        <section id="vocabulary-section" class="hidden w-full">
+            <div class="sticky top-20 md:top-24 z-30 pb-6 bg-[#030712]/80 backdrop-blur-xl -mx-4 px-4 md:mx-0 md:px-0 md:bg-transparent md:backdrop-blur-none transition-all">
+                <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 animate-slide-up">
+                    <div class="w-full md:w-auto">
+                        <h2 class="font-display text-3xl font-bold">Glossar</h2>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <input type="text" id="search-input" placeholder="Search..." onkeyup="renderVocabulary()" 
+                            class="w-full bg-slate-800/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div id="vocab-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-32"></div>
+            <div id="empty-state" class="hidden text-center py-32 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-ghost text-2xl text-slate-500"></i>
+                </div>
+                <p class="text-slate-400 mb-6">No words found.</p>
+                <button onclick="showSection('manage')" class="text-indigo-400 font-bold hover:underline">Add words in Manage</button>
+            </div>
+        </section>
+
+        <!-- SECTION: GRAMMAR DASHBOARD -->
+        <section id="grammar-section" class="hidden w-full pb-20">
+            <div class="text-center mb-10 animate-slide-up">
+                <span class="text-xs font-bold text-pink-400 uppercase tracking-widest">A2 Level</span>
+                <h2 class="font-display text-4xl font-bold mb-4">Grammar Modules</h2>
+                <p class="text-slate-400">Master the rules with structured lessons.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grammar-module-grid">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="mt-12 glass-panel p-8 rounded-[2rem] border border-emerald-500/20 relative overflow-hidden group cursor-pointer" onclick="openWritingPractice()">
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h3 class="text-2xl font-bold font-display text-emerald-300">Writing Studio</h3>
+                        <p class="text-slate-400 text-sm mt-2">Practice A2 Exam prompts (Emails, Invitations).</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-pen-nib"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: GRAMMAR LESSON DETAIL -->
+        <section id="grammar-detail-section" class="hidden w-full pb-20">
+            <button onclick="showSection('grammar')" class="mb-6 text-slate-400 hover:text-white flex items-center gap-2 text-sm font-bold uppercase tracking-wide">
+                <i class="fa-solid fa-arrow-left"></i> Back to Modules
+            </button>
+            
+            <div class="glass-card rounded-[2.5rem] overflow-hidden min-h-[60vh] flex flex-col">
+                <!-- Header -->
+                <div class="bg-white/5 p-6 md:p-10 border-b border-white/5">
+                    <h2 id="module-title" class="font-display text-3xl md:text-4xl font-bold text-white mb-2"></h2>
+                    <p id="module-desc" class="text-slate-400"></p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-white/5 overflow-x-auto">
+                    <button class="flex-1 min-w-[100px] py-4 text-sm font-bold text-slate-400 hover:text-white border-b-2 border-transparent hover:border-indigo-500 transition-colors tab-btn active" data-tab="theory">
+                        <i class="fa-solid fa-book mr-2"></i> Learn
+                    </button>
+                    <button class="flex-1 min-w-[100px] py-4 text-sm font-bold text-slate-400 hover:text-white border-b-2 border-transparent hover:border-indigo-500 transition-colors tab-btn" data-tab="quiz">
+                        <i class="fa-solid fa-check-circle mr-2"></i> Quiz
+                    </button>
+                    <button class="flex-1 min-w-[100px] py-4 text-sm font-bold text-slate-400 hover:text-white border-b-2 border-transparent hover:border-indigo-500 transition-colors tab-btn" data-tab="sentences">
+                        <i class="fa-solid fa-shapes mr-2"></i> Builder
+                    </button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="p-6 md:p-10 flex-grow bg-[#050a16]">
+                    <!-- Theory Tab -->
+                    <div id="tab-theory" class="tab-content animate-fade-in space-y-8">
+                        <!-- Injected JS -->
+                    </div>
+
+                    <!-- Quiz Tab -->
+                    <div id="tab-quiz" class="tab-content hidden animate-fade-in">
+                        <div id="grammar-quiz-container" class="max-w-xl mx-auto">
+                            <!-- Injected JS -->
+                        </div>
+                    </div>
+
+                    <!-- Sentence Builder Tab -->
+                    <div id="tab-sentences" class="tab-content hidden animate-fade-in">
+                        <div class="max-w-2xl mx-auto text-center">
+                            <p class="text-slate-400 mb-8">Click words in the correct order to form the sentence.</p>
+                            
+                            <div id="sentence-drop-zone" class="min-h-[80px] bg-slate-900/50 border-2 border-dashed border-slate-700 rounded-2xl p-4 flex flex-wrap gap-2 justify-center items-center mb-8 transition-colors">
+                                <span class="text-slate-600 text-sm italic pointer-events-none">Construct sentence here...</span>
+                            </div>
+
+                            <div id="word-bank" class="flex flex-wrap justify-center gap-3 mb-8">
+                                <!-- Pills -->
+                            </div>
+
+                            <div id="sb-feedback" class="h-10 mb-4 font-bold"></div>
+
+                            <button onclick="checkSentence()" class="px-8 py-3 bg-indigo-600 rounded-xl font-bold shadow-lg hover:bg-indigo-500 transition-all">
+                                Check Order
+                            </button>
+                             <button onclick="nextSentence()" class="ml-4 px-8 py-3 glass-panel rounded-xl font-bold hover:bg-white/10 transition-all hidden" id="next-sb-btn">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: WRITING STUDIO -->
+        <section id="writing-section" class="hidden w-full pb-20">
+            <button onclick="showSection('grammar')" class="mb-6 text-slate-400 hover:text-white flex items-center gap-2 text-sm font-bold uppercase tracking-wide">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <div class="max-w-3xl mx-auto">
+                <div class="glass-card p-8 rounded-[2rem] mb-6">
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 block">Schreiben Teil 1</span>
+                    <h2 class="text-2xl font-bold font-display mb-4">Writing Practice</h2>
+                    <p class="text-slate-300 mb-6 bg-slate-800/50 p-4 rounded-xl border border-white/5 italic" id="writing-prompt">
+                        Loading prompt...
+                    </p>
+                    
+                    <textarea id="writing-area" class="w-full h-40 bg-[#0b1120] border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors resize-none mb-4" placeholder="Schreiben Sie hier..."></textarea>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500" id="word-count">0 words</span>
+                        <button onclick="showWritingSolution()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition-all">
+                            Check Model Answer
+                        </button>
+                    </div>
+                </div>
+
+                <div id="writing-solution" class="hidden glass-panel p-8 rounded-[2rem] border border-emerald-500/20 animate-slide-up">
+                    <h3 class="font-bold text-emerald-300 mb-4">Musterlösung (Model Answer)</h3>
+                    <p class="text-slate-300 leading-relaxed whitespace-pre-line" id="model-answer-text"></p>
+                    <div class="mt-6 pt-4 border-t border-white/10">
+                        <h4 class="text-sm font-bold text-slate-400 mb-2">Useful Phrases:</h4>
+                        <ul class="text-sm text-slate-300 list-disc list-inside space-y-1" id="useful-phrases"></ul>
+                    </div>
+                    <button onclick="nextWritingPrompt()" class="mt-6 w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl font-bold text-sm transition-all">
+                        Try Another Prompt
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: EXAM MODE -->
+        <section id="exam-section" class="hidden w-full pb-20">
+            <div id="exam-intro" class="text-center py-20 animate-fade-in">
+                <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center mb-8 shadow-2xl rotate-3">
+                    <i class="fa-solid fa-graduation-cap text-4xl text-white"></i>
+                </div>
+                <h2 class="font-display text-4xl font-bold mb-4">A2 Exam Simulation</h2>
+                <p class="text-slate-400 max-w-md mx-auto mb-8">
+                    10 random grammar questions, 1 sentence construction, and 1 writing prompt.
+                </p>
+                <button onclick="startExam()" class="px-10 py-4 bg-white text-slate-900 rounded-full font-bold text-lg hover:bg-indigo-50 transition-all shadow-lg active:scale-95">
+                    Start Exam
+                </button>
+            </div>
+
+            <div id="exam-active" class="hidden max-w-2xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="font-bold text-slate-400">Question <span id="exam-q-num">1</span>/12</span>
+                    <span class="text-indigo-400 font-bold" id="exam-score">Score: 0</span>
+                </div>
+                <div class="h-1 w-full bg-slate-800 rounded-full mb-8 overflow-hidden">
+                    <div id="exam-progress" class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 w-0 transition-all duration-500"></div>
+                </div>
+
+                <div id="exam-card-container"></div>
+            </div>
+
+            <div id="exam-result" class="hidden text-center py-20 glass-card rounded-[3rem]">
+                <h2 class="text-3xl font-bold mb-4">Exam Completed</h2>
+                <div class="text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400 mb-6" id="final-exam-score">0%</div>
+                <p class="text-slate-400 mb-8">Review your weak points in the Grammar module.</p>
+                <button onclick="showSection('home')" class="px-8 py-3 glass-panel rounded-xl font-bold hover:bg-white/10">Back to Home</button>
+            </div>
+        </section>
+
+        <!-- SECTION: MANAGE -->
+        <section id="manage-section" class="hidden w-full">
+            <div class="max-w-2xl mx-auto glass-card p-8 rounded-[2rem]">
+                <h2 class="text-2xl font-bold mb-4">Manage Data</h2>
+                <p class="text-slate-400 text-sm mb-4">Add vocabulary (Format: German | English | Example DE | Example EN) or reset data.</p>
+                <textarea id="bulk-input" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm mb-4 font-mono text-slate-300 focus:outline-none focus:border-indigo-500" placeholder="der Hund | The Dog | Der Hund bellt. | The dog barks."></textarea>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="processBulkImport()" class="px-6 py-3 bg-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-500 transition-all">Add Words</button>
+                    <button onclick="clearAllData()" class="px-6 py-3 bg-red-500/10 text-red-400 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-all border border-red-500/20">Reset Data</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Mobile Nav -->
+    <nav class="md:hidden fixed bottom-0 w-full z-50 glass-panel border-t border-white/10 pb-safe">
+        <div class="grid grid-cols-5 h-16 items-center justify-items-center">
+            <button onclick="showSection('home')" class="bottom-nav-item w-full h-full flex flex-col items-center justify-center gap-1 text-slate-500" data-target="home"><i class="fa-solid fa-house text-lg"></i></button>
+            <button onclick="showSection('vocabulary')" class="bottom-nav-item w-full h-full flex flex-col items-center justify-center gap-1 text-slate-500" data-target="vocabulary"><i class="fa-solid fa-book-open text-lg"></i></button>
+            <button onclick="showSection('grammar')" class="bottom-nav-item w-full h-full flex flex-col items-center justify-center gap-1 text-slate-500" data-target="grammar"><i class="fa-solid fa-puzzle-piece text-lg"></i></button>
+            <button onclick="showSection('exam')" class="bottom-nav-item w-full h-full flex flex-col items-center justify-center gap-1 text-slate-500" data-target="exam"><i class="fa-solid fa-graduation-cap text-lg"></i></button>
+            <button onclick="showSection('manage')" class="bottom-nav-item w-full h-full flex flex-col items-center justify-center gap-1 text-slate-500" data-target="manage"><i class="fa-solid fa-gear text-lg"></i></button>
+        </div>
+    </nav>
+    <div class="md:hidden h-6 bg-[#030712]"></div>
+
+    <!-- JS Logic -->
+    <script>
+        // --- 1. GRAMMAR DATA STORE ---
+        const grammarData = {
+            "akk_dat": {
+                title: "Akkusativ vs Dativ",
+                desc: "Understanding Direct and Indirect Objects",
+                theory: [
+                    { type: "rule", text: "Akkusativ is for the direct object (the thing being acted upon). The question is 'Wen or Was?'" },
+                    { type: "rule", text: "Dativ is for the indirect object (the receiver). The question is 'Wem?'" },
+                    { type: "list", title: "Important Prepositions", items: ["Akk: für, um, durch, gegen, ohne", "Dat: aus, bei, mit, nach, seit, von, zu"] },
+                    { type: "example", text: "Ich (Nom) gebe dem Mann (Dat) den Apfel (Akk).", sub: "I give the man the apple." }
+                ],
+                mistakes: ["Using 'dem' for direct objects.", "Forgetting that 'mit' is ALWAYS Dativ."],
+                quiz: [
+                    { q: "Ich sehe ___ Hund.", options: ["den", "dem", "der"], correct: 0, explain: "Sehen requires Akkusativ (Direct Object)." },
+                    { q: "Ich helfe ___ Frau.", options: ["die", "der", "den"], correct: 1, explain: "Helfen is a Dativ verb." },
+                    { q: "Wir gehen mit ___ Freunden.", options: ["den", "dem", "die"], correct: 0, explain: "'Mit' always takes Dativ (Plural 'den')." }
+                ],
+                sentences: [
+                    { words: ["Ich", "kaufe", "ein", "Buch"], correct: "Ich kaufe ein Buch" },
+                    { words: ["Er", "gibt", "ihr", "die", "Blume"], correct: "Er gibt ihr die Blume" }
+                ]
+            },
+            "modal": {
+                title: "Modalverben",
+                desc: "Können, Müssen, Dürfen, Wollen",
+                theory: [
+                    { type: "rule", text: "Conjugated modal verb goes to Position 2." },
+                    { type: "rule", text: "The other verb (Infinitive) goes to the VERY END." },
+                    { type: "example", text: "Ich kann gut Fußball spielen.", sub: "Can (Pos 2) ... Play (End)." }
+                ],
+                mistakes: ["Putting the infinitive in the middle."],
+                quiz: [
+                    { q: "Ich ___ heute arbeiten.", options: ["muss", "müssen", "musst"], correct: 0, explain: "Ich muss." },
+                    { q: "Wir wollen nach Hause ___.", options: ["gehen", "gehe", "geht"], correct: 0, explain: "Infinitive at the end." }
+                ],
+                sentences: [
+                    { words: ["Ich", "kann", "sehr", "gut", "schwimmen"], correct: "Ich kann sehr gut schwimmen" },
+                    { words: ["Wir", "müssen", "jetzt", "Hausaufgaben", "machen"], correct: "Wir müssen jetzt Hausaufgaben machen" }
+                ]
+            },
+            "perfekt": {
+                title: "Das Perfekt",
+                desc: "Talking about the past",
+                theory: [
+                    { type: "rule", text: "Use helper verb (haben/sein) + Partizip II at the end." },
+                    { type: "rule", text: "Use 'sein' for movement/change of state (gehen, fahren). Use 'haben' for most others." },
+                    { type: "example", text: "Ich habe einen Pizza gegessen.", sub: "Habe (Pos 2) ... Gegessen (End)." }
+                ],
+                mistakes: ["Using 'haben' with movement verbs like 'fahren'."],
+                quiz: [
+                    { q: "Ich ___ nach Berlin gefahren.", options: ["bin", "habe", "werde"], correct: 0, explain: "Fahren implies movement -> Sein." },
+                    { q: "Er hat das Buch ___.", options: ["gelesen", "gelest", "lesen"], correct: 0, explain: "Partizip II of lesen is gelesen." }
+                ],
+                sentences: [
+                    { words: ["Ich", "bin", "gestern", "ins", "Kino", "gegangen"], correct: "Ich bin gestern ins Kino gegangen" }
+                ]
+            },
+            "nebensatz": {
+                title: "Nebensätze (Weil/Dass)",
+                desc: "Subordinate Clauses",
+                theory: [
+                    { type: "rule", text: "Words like 'weil', 'dass', 'wenn' kick the verb to the END." },
+                    { type: "example", text: "Ich bin müde, weil ich viel gearbeitet habe.", sub: "Verb 'habe' is at the end." }
+                ],
+                mistakes: ["Putting the verb straight after 'weil'."],
+                quiz: [
+                    { q: "Ich lerne Deutsch, weil es Spaß ___.", options: ["macht", "machen", "mache"], correct: 0, explain: "Verb goes to the end in Weil-Satz." },
+                    { q: "Er sagt, dass er heute nicht ___.", options: ["kommt", "kommen", "komme"], correct: 0, explain: "Verb goes to the end in Dass-Satz." }
+                ],
+                sentences: [
+                    { words: ["Ich", "esse", "nichts", "weil", "ich", "satt", "bin"], correct: "Ich esse nichts weil ich satt bin" }
+                ]
+            }
+        };
+
+        const writingPrompts = [
+            {
+                title: "Einladung zum Geburtstag",
+                prompt: "You want to invite your friend Tim to your birthday party on Saturday at 18:00. Write an email asking him to come and bring drinks.",
+                model: "Hallo Tim,\n\nich lade dich herzlich zu meinem Geburtstag ein! Die Party ist am Samstag um 18:00 Uhr bei mir zu Hause.\n\nKannst du bitte Getränke mitbringen? Ich würde mich sehr freuen, wenn du kommst.\n\nViele Grüße,\n[Dein Name]",
+                phrases: ["Ich lade dich ein...", "Die Party ist am...", "Kannst du bitte... mitbringen?", "Ich würde mich freuen..."]
+            },
+            {
+                title: "Entschuldigung für Kurs",
+                prompt: "Write an email to your teacher, Herr Müller. You cannot come to the German course tomorrow because you are sick.",
+                model: "Sehr geehrter Herr Müller,\n\nleider kann ich morgen nicht zum Deutschkurs kommen, weil ich krank bin. Ich habe Fieber und Kopfschmerzen.\n\nKönnen Sie mir bitte die Hausaufgaben schicken?\n\nMit freundlichen Grüßen,\n[Dein Name]",
+                phrases: ["Sehr geehrter Herr...", "Leider kann ich nicht kommen...", "...weil ich krank bin.", "Mit freundlichen Grüßen"]
+            }
+        ];
+
+        // --- VOCAB LOGIC ---
+        let vocabulary = JSON.parse(localStorage.getItem('vocabData')) || [];
+        const defaultVocab = [
+            { word: "der Apfel", meaning: "Apple", exDE: "Ich esse einen Apfel.", exEN: "I eat an apple." },
+            { word: "das Haus", meaning: "House", exDE: "Das Haus ist groß.", exEN: "The house is big." },
+            { word: "gehen", meaning: "To go", exDE: "Wir gehen nach Hause.", exEN: "We are going home." },
+            { word: "schön", meaning: "Beautiful", exDE: "Das Wetter ist schön.", exEN: "The weather is beautiful." },
+            { word: "der Hund", meaning: "Dog", exDE: "Der Hund bellt.", exEN: "The dog barks." }
+        ];
+
+        // --- APP STATE ---
+        let activeModuleId = null;
+        let currentWritingIndex = 0;
+        let sbCurrentSentence = null;
+        let sbUserOrder = [];
+        
+        // --- NAVIGATION ---
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`${id}-section`).classList.remove('hidden');
+            document.getElementById(`${id}-section`).classList.add('animate-fade-in');
+            
+            // Nav State
+            document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[onclick*="'${id}'"], [data-target="${id}"]`).forEach(el => el.classList.add('active'));
+
+            if (id === 'grammar') renderGrammarDashboard();
+            if (id === 'vocabulary') renderVocabulary();
+            window.scrollTo(0,0);
+        }
+
+        // --- GRAMMAR DASHBOARD ---
+        function renderGrammarDashboard() {
+            const grid = document.getElementById('grammar-module-grid');
+            grid.innerHTML = '';
+            
+            Object.keys(grammarData).forEach(key => {
+                const mod = grammarData[key];
+                const card = document.createElement('div');
+                card.className = 'glass-card p-6 rounded-3xl cursor-pointer hover:bg-white/5 relative overflow-hidden group';
+                card.onclick = () => openGrammarModule(key);
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-shapes text-5xl"></i>
+                    </div>
+                    <div class="mb-4 w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-lg">
+                        ${mod.title.substring(0,2)}
+                    </div>
+                    <h3 class="text-xl font-bold mb-1 group-hover:text-indigo-400 transition-colors">${mod.title}</h3>
+                    <p class="text-sm text-slate-400">${mod.desc}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- MODULE LOGIC ---
+        function openGrammarModule(key) {
+            activeModuleId = key;
+            const mod = grammarData[key];
+            
+            document.getElementById('grammar-section').classList.add('hidden');
+            document.getElementById('grammar-detail-section').classList.remove('hidden');
+            
+            document.getElementById('module-title').innerText = mod.title;
+            document.getElementById('module-desc').innerText = mod.desc;
+            
+            // Reset Tabs
+            switchTab('theory');
+            
+            // Render Theory
+            const theoryContainer = document.getElementById('tab-theory');
+            theoryContainer.innerHTML = '';
+            mod.theory.forEach(item => {
+                if(item.type === 'rule') theoryContainer.innerHTML += `<div class="flex gap-3"><i class="fa-solid fa-angle-right text-indigo-400 mt-1"></i><p class="text-slate-300 font-medium">${item.text}</p></div>`;
+                if(item.type === 'example') theoryContainer.innerHTML += `<div class="bg-white/5 p-4 rounded-xl border-l-4 border-indigo-500"><p class="text-white font-bold text-lg mb-1">${item.text}</p><p class="text-slate-500 text-sm">${item.sub}</p></div>`;
+                if(item.type === 'list') theoryContainer.innerHTML += `<div class="bg-indigo-900/20 p-4 rounded-xl"><h4 class="font-bold text-indigo-300 mb-2">${item.title}</h4><div class="flex flex-wrap gap-2">${item.items.map(i => `<span class="px-2 py-1 bg-indigo-500/20 rounded text-xs text-indigo-200">${i}</span>`).join('')}</div></div>`;
+            });
+            // Mistakes
+            if(mod.mistakes) {
+                theoryContainer.innerHTML += `<div class="mt-4 p-4 border border-red-500/30 bg-red-500/5 rounded-xl"><h4 class="text-red-400 font-bold mb-2"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Common Mistakes</h4><ul class="list-disc list-inside text-slate-400 text-sm space-y-1">${mod.mistakes.map(m => `<li>${m}</li>`).join('')}</ul></div>`;
+            }
+
+            // Render Quiz
+            const quizContainer = document.getElementById('grammar-quiz-container');
+            quizContainer.innerHTML = '';
+            mod.quiz.forEach((q, idx) => {
+                const qEl = document.createElement('div');
+                qEl.className = 'glass-panel p-6 rounded-2xl mb-4';
+                qEl.innerHTML = `
+                    <p class="font-bold text-lg mb-4 text-white"><span class="text-indigo-400 mr-2">${idx+1}.</span>${q.q}</p>
+                    <div class="grid grid-cols-1 gap-2">
+                        ${q.options.map((opt, oIdx) => `<button onclick="checkGrammarAnswer(this, ${oIdx}, ${q.correct}, '${q.explain.replace(/'/g, "\\'")}')" class="text-left px-4 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-slate-300">${opt}</button>`).join('')}
+                    </div>
+                    <div class="feedback-msg mt-3 text-sm font-medium hidden"></div>
+                `;
+                quizContainer.appendChild(qEl);
+            });
+
+            // Init Sentence Builder
+            initSentenceBuilder(mod.sentences[0]);
+        }
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-indigo-400', 'border-indigo-500'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if(b.dataset.tab === tabName) b.classList.add('active', 'text-indigo-400', 'border-indigo-500');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        }
+
+        function checkGrammarAnswer(btn, selected, correct, explain) {
+            const parent = btn.parentElement;
+            const feedback = parent.parentElement.querySelector('.feedback-msg');
+            const buttons = parent.querySelectorAll('button');
+            
+            buttons.forEach(b => b.classList.add('pointer-events-none', 'opacity-50'));
+            btn.classList.remove('opacity-50');
+
+            if(selected === correct) {
+                btn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-400');
+                feedback.innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i> Correct! ${explain}</span>`;
+            } else {
+                btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400');
+                buttons[correct].classList.remove('opacity-50');
+                buttons[correct].classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-400');
+                feedback.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-xmark mr-1"></i> Wrong. ${explain}</span>`;
+            }
+            feedback.classList.remove('hidden');
+            feedback.classList.add('animate-fade-in');
+        }
+
+        // --- SENTENCE BUILDER ---
+        function initSentenceBuilder(sentenceData) {
+            if(!sentenceData) return;
+            sbCurrentSentence = sentenceData;
+            sbUserOrder = [];
+            document.getElementById('sb-feedback').innerText = '';
+            document.getElementById('next-sb-btn').classList.add('hidden');
+            
+            const dropZone = document.getElementById('sentence-drop-zone');
+            dropZone.innerHTML = '<span class="text-slate-600 text-sm italic pointer-events-none">Construct sentence here...</span>';
+            dropZone.classList.remove('border-emerald-500', 'border-red-500');
+            dropZone.classList.add('border-slate-700');
+
+            const bank = document.getElementById('word-bank');
+            bank.innerHTML = '';
+            
+            // Shuffle
+            const shuffled = [...sentenceData.words].sort(() => 0.5 - Math.random());
+            
+            shuffled.forEach(word => {
+                const pill = document.createElement('div');
+                pill.className = 'word-pill px-4 py-2 bg-slate-800 border border-slate-600 rounded-full text-slate-200 font-medium shadow-sm';
+                pill.innerText = word;
+                pill.onclick = () => moveWordToZone(pill, word);
+                bank.appendChild(pill);
+            });
+        }
+
+        function moveWordToZone(el, word) {
+            const dropZone = document.getElementById('sentence-drop-zone');
+            
+            // Remove placeholder if first word
+            if(dropZone.querySelector('span')) dropZone.innerHTML = '';
+            
+            // Move logic
+            if(el.parentElement.id === 'word-bank') {
+                dropZone.appendChild(el);
+                sbUserOrder.push(word);
+            } else {
+                document.getElementById('word-bank').appendChild(el);
+                sbUserOrder = sbUserOrder.filter(w => w !== word);
+                if(sbUserOrder.length === 0) dropZone.innerHTML = '<span class="text-slate-600 text-sm italic pointer-events-none">Construct sentence here...</span>';
+            }
+        }
+
+        function checkSentence() {
+            const userString = sbUserOrder.join(' ');
+            const feedback = document.getElementById('sb-feedback');
+            const dropZone = document.getElementById('sentence-drop-zone');
+
+            if(userString === sbCurrentSentence.correct) {
+                feedback.innerHTML = '<span class="text-emerald-400">Perfekt! Correct order.</span>';
+                dropZone.classList.replace('border-slate-700', 'border-emerald-500');
+                // Confetti logic or sound here?
+                // Show Next Button
+                document.getElementById('next-sb-btn').classList.remove('hidden');
+            } else {
+                feedback.innerHTML = '<span class="text-red-400">Not quite. Watch the verb position!</span>';
+                dropZone.classList.replace('border-slate-700', 'border-red-500');
+                dropZone.classList.add('shake-anim');
+                setTimeout(() => dropZone.classList.remove('shake-anim'), 500);
+            }
+        }
+        
+        function nextSentence() {
+            // Logic to get next sentence in module or loop
+            // For demo, just reshuffles same one to save space
+             initSentenceBuilder(sbCurrentSentence);
+        }
+
+        // --- WRITING STUDIO ---
+        function openWritingPractice() {
+            showSection('writing');
+            loadWritingPrompt(0);
+        }
+
+        function loadWritingPrompt(idx) {
+            currentWritingIndex = idx;
+            const data = writingPrompts[idx];
+            document.getElementById('writing-prompt').innerText = data.prompt;
+            document.getElementById('writing-area').value = '';
+            document.getElementById('word-count').innerText = "0 words";
+            document.getElementById('writing-solution').classList.add('hidden');
+            
+            // Store model data for check
+            window.currentModel = data;
+        }
+
+        document.getElementById('writing-area').addEventListener('input', (e) => {
+             const count = e.target.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+             document.getElementById('word-count').innerText = count + " words";
+        });
+
+        function showWritingSolution() {
+            const solDiv = document.getElementById('writing-solution');
+            solDiv.classList.remove('hidden');
+            document.getElementById('model-answer-text').innerText = window.currentModel.model;
+            
+            const list = document.getElementById('useful-phrases');
+            list.innerHTML = window.currentModel.phrases.map(p => `<li>${p}</li>`).join('');
+            
+            solDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextWritingPrompt() {
+            let next = currentWritingIndex + 1;
+            if(next >= writingPrompts.length) next = 0;
+            loadWritingPrompt(next);
+        }
+
+        // --- EXAM MODE ---
+        let examQuestions = [];
+        let examIndex = 0;
+        let examScore = 0;
+
+        function startExam() {
+            document.getElementById('exam-intro').classList.add('hidden');
+            document.getElementById('exam-result').classList.add('hidden');
+            document.getElementById('exam-active').classList.remove('hidden');
+            
+            examQuestions = [];
+            examScore = 0;
+            examIndex = 0;
+
+            // Gather MCQs from Grammar Modules
+            Object.values(grammarData).forEach(mod => {
+                mod.quiz.forEach(q => examQuestions.push(q));
+            });
+            
+            // Randomly select 12
+            examQuestions = examQuestions.sort(() => 0.5 - Math.random()).slice(0, 12);
+            
+            showExamQuestion();
+        }
+
+        function showExamQuestion() {
+            const q = examQuestions[examIndex];
+            const container = document.getElementById('exam-card-container');
+            
+            document.getElementById('exam-q-num').innerText = examIndex + 1;
+            document.getElementById('exam-progress').style.width = `${((examIndex + 1) / 12) * 100}%`;
+            document.getElementById('exam-score').innerText = `Score: ${examScore}`;
+
+            container.innerHTML = `
+                <div class="glass-card p-8 rounded-[2rem] animate-slide-up">
+                    <p class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">Grammar Check</p>
+                    <h3 class="text-2xl font-bold mb-6">${q.q}</h3>
+                    <div class="grid gap-3">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="handleExamAnswer(${idx}, ${q.correct})" class="w-full text-left p-4 rounded-xl glass-panel hover:bg-white/10 transition-all border border-white/5 font-medium text-slate-200">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleExamAnswer(selected, correct) {
+            if(selected === correct) examScore++;
+            examIndex++;
+            if(examIndex < 12 && examIndex < examQuestions.length) {
+                showExamQuestion();
+            } else {
+                finishExam();
+            }
+        }
+
+        function finishExam() {
+            document.getElementById('exam-active').classList.add('hidden');
+            document.getElementById('exam-result').classList.remove('hidden');
+            const pct = Math.round((examScore / 12) * 100);
+            document.getElementById('final-exam-score').innerText = `${pct}%`;
+        }
+
+        // --- VOCABULARY FUNCTIONS ---
+        function renderVocabulary() {
+            const grid = document.getElementById('vocab-grid');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const emptyState = document.getElementById('empty-state');
+            
+            grid.innerHTML = '';
+            
+            const filtered = vocabulary.filter(v => 
+                v.word.toLowerCase().includes(search) || 
+                v.meaning.toLowerCase().includes(search)
+            );
+
+            if(filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filtered.forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = 'glass-card p-6 rounded-3xl group';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">${v.word}</h3>
+                            <button onclick="speak('${v.word}')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-volume-high"></i></button>
+                        </div>
+                        <p class="text-indigo-300 font-medium mb-4">${v.meaning}</p>
+                        <div class="bg-white/5 rounded-xl p-3 mb-2">
+                            <p class="text-sm text-slate-300 italic">"${v.exDE}"</p>
+                        </div>
+                        <p class="text-xs text-slate-500">${v.exEN}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'de-DE';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- MANAGE FUNCTIONS ---
+        function processBulkImport() {
+            const input = document.getElementById('bulk-input').value;
+            if(!input.trim()) return;
+
+            const lines = input.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                const parts = line.split('|').map(p => p.trim());
+                if(parts.length >= 2) {
+                    vocabulary.push({
+                        word: parts[0],
+                        meaning: parts[1],
+                        exDE: parts[2] || "Kein Beispiel",
+                        exEN: parts[3] || "No example"
+                    });
+                    addedCount++;
+                }
+            });
+
+            localStorage.setItem('vocabData', JSON.stringify(vocabulary));
+            document.getElementById('bulk-input').value = '';
+            showToast('Success', `Added ${addedCount} words.`);
+            renderVocabulary();
+        }
+
+        function clearAllData() {
+            if(confirm('Are you sure you want to delete all vocabulary?')) {
+                vocabulary = [];
+                localStorage.removeItem('vocabData');
+                renderVocabulary();
+                showToast('Cleared', 'All vocabulary deleted.');
+            }
+        }
+
+        // --- UTILS ---
+        function showToast(title, msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+            
+            toast.style.transform = "translateX(0)";
+            setTimeout(() => {
+                toast.style.transform = "translateX(150%)";
+            }, 3000);
+        }
+
+        // --- INIT ---
+        function initApp() {
+            if(!localStorage.getItem('vocabData') || JSON.parse(localStorage.getItem('vocabData')).length === 0) {
+                vocabulary = defaultVocab;
+                localStorage.setItem('vocabData', JSON.stringify(vocabulary));
+            }
+            renderVocabulary();
+        }
+        
+        window.onload = initApp;
+
+    </script>
+</body>
+</html>
