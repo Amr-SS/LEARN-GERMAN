@@ -186,7 +186,7 @@
                 </div>
                 <div>
                     <span class="font-display font-bold text-2xl tracking-tight block leading-none">LINGO</span>
-                    <span class="text-[10px] text-indigo-300 font-medium tracking-widest uppercase">Premium</span>
+                    <span class="text-[10px] text-indigo-300 font-medium tracking-widest uppercase">BY AMRIT SS</span>
                 </div>
             </div>
             <div class="flex items-center gap-6">
@@ -240,7 +240,7 @@
                 </h1>
                 
                 <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-xl mx-auto animate-slide-up leading-relaxed" style="animation-delay: 0.2s;">
-                    Learn A2 Vocabulary, Master Grammar, and Ace your Exams.
+                    AMRIT HELPING AMRIT TO LEARN DEUTSCH
                 </p>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto animate-slide-up" style="animation-delay: 0.3s;">
@@ -337,6 +337,12 @@
                             <span class="block text-4xl font-bold text-white" id="vq-final-score">8/10</span>
                             <span class="text-xs text-indigo-300 uppercase tracking-wide">Score</span>
                         </div>
+                    </div>
+
+                    <!-- Analysis Container (New) -->
+                    <div id="vq-analysis-container" class="mb-8 hidden">
+                        <h4 class="text-left text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Detailed Analysis</h4>
+                        <div id="vq-analysis-list" class="text-left max-h-64 overflow-y-auto pr-2 space-y-3 custom-scrollbar"></div>
                     </div>
 
                     <button onclick="closeVocabQuiz()" class="px-8 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition-all">Back to Glossary</button>
@@ -672,6 +678,7 @@
         let vocabQuizQuestions = [];
         let vocabQuizCurrentIndex = 0;
         let vocabQuizScore = 0;
+        let vocabQuizResults = [];
 
         // --- NAVIGATION ---
         function showSection(id) {
@@ -1056,6 +1063,7 @@
 
             vocabQuizCurrentIndex = 0;
             vocabQuizScore = 0;
+            vocabQuizResults = []; // Reset results array
             
             document.getElementById('vocab-quiz-intro').classList.add('hidden');
             document.getElementById('vocab-quiz-active').classList.remove('hidden');
@@ -1091,7 +1099,17 @@
             const buttons = document.getElementById('vq-options-grid').querySelectorAll('button');
             buttons.forEach(b => b.disabled = true); // Disable all
             
-            if (selected === correct) {
+            const isCorrect = selected === correct;
+            
+            // Store result
+            vocabQuizResults.push({
+                questionWord: vocabQuizQuestions[vocabQuizCurrentIndex].word,
+                selected: selected,
+                correctAnswer: correct,
+                isCorrect: isCorrect
+            });
+            
+            if (isCorrect) {
                 btn.classList.remove('glass-panel');
                 btn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-400');
                 vocabQuizScore++;
@@ -1124,7 +1142,31 @@
             document.getElementById('vocab-quiz-results').classList.remove('hidden');
             document.getElementById('vq-final-score').innerText = `${vocabQuizScore}/${vocabQuizQuestions.length}`;
             
-            // Confetti effect could go here
+            // Generate Analysis
+            const resultsContainer = document.getElementById('vq-analysis-list');
+            resultsContainer.innerHTML = ''; // Clear previous
+            
+            vocabQuizResults.forEach((res) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-lg border ${res.isCorrect ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'}`;
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-bold ${res.isCorrect ? 'text-emerald-400' : 'text-red-400'} uppercase tracking-wide block mb-1">
+                                ${res.isCorrect ? '<i class="fa-solid fa-check mr-1"></i>Correct' : '<i class="fa-solid fa-xmark mr-1"></i>Wrong'}
+                            </span>
+                            <p class="text-white font-bold text-lg">${res.questionWord}</p>
+                        </div>
+                        <div class="text-right text-xs text-slate-400">
+                            <p>You: <span class="${res.isCorrect ? 'text-emerald-300' : 'text-red-300'} font-bold">${res.selected}</span></p>
+                            ${!res.isCorrect ? `<p class="mt-1">Ans: <span class="text-emerald-300 font-bold">${res.correctAnswer}</span></p>` : ''}
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(item);
+            });
+            
+            document.getElementById('vq-analysis-container').classList.remove('hidden');
         }
 
         function closeVocabQuiz() {
